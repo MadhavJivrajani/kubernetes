@@ -68,3 +68,7 @@ func Convert_v1beta1_JSON_To_apiextensions_JSON(in *JSON, out *apiextensions.JSO
 	}
 	return nil
 }
+
+func Convert_apiextensions_CustomResourceDefinitionSpec_To_v1beta1_CustomResourceDefinitionSpec(in *apiextensions.CustomResourceDefinitionSpec, out *CustomResourceDefinitionSpec, s conversion.Scope) error {
+	return nil
+}
