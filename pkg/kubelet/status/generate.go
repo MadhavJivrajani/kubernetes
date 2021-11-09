@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"strings"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	podutil "k8s.io/kubernetes/pkg/api/v1/pod"
 )
 
@@ -189,5 +189,22 @@ func GeneratePodInitializedCondition(spec *v1.PodSpec, containerStatuses []v1.Co
 	return v1.PodCondition{
 		Type:   v1.PodInitialized,
 		Status: v1.ConditionTrue,
+	}
+}
+
+// GeneratePodWithEphemeralContainerCondition generates the pod condition that taints a pod
+// that has or has had ephemeral containers created.
+func GeneratePodWithEphemeralContainerCondition(spec *v1.PodSpec) v1.PodCondition {
+	if len(spec.EphemeralContainers) > 0 {
+		return v1.PodCondition{
+			Type:    v1.PodWithEphemeralContainer,
+			Status:  v1.ConditionTrue,
+			Reason:  "EphemeralContainerCreated",
+			Message: "An ephemeral container was created for this pod.",
+		}
+	}
+	return v1.PodCondition{
+		Type:   v1.PodWithEphemeralContainer,
+		Status: v1.ConditionFalse,
 	}
 }

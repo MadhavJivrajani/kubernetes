@@ -2562,6 +2562,9 @@ const (
 	PodReady PodConditionType = "Ready"
 	// PodScheduled represents status of the scheduling process for this pod.
 	PodScheduled PodConditionType = "PodScheduled"
+	// PodWithEphemeralContainer represents if an ephemeral container was created
+	// for this pod.
+	PodWithEphemeralContainer PodConditionType = "PodWithEphemeralContainer"
 )
 
 // These are reasons for a pod's transition to a condition.
