@@ -524,15 +524,15 @@ func (m *CustomResourceValidation) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CustomResourceValidation proto.InternalMessageInfo
 
-func (m *CustomeResourceDefinitionFeatureGates) Reset()      { *m = CustomeResourceDefinitionFeatureGates{} }
-func (*CustomeResourceDefinitionFeatureGates) ProtoMessage() {}
-func (*CustomeResourceDefinitionFeatureGates) Descriptor() ([]byte, []int) {
+func (m *CustomResourceDefinitionFeatureGates) Reset()      { *m = CustomResourceDefinitionFeatureGates{} }
+func (*CustomResourceDefinitionFeatureGates) ProtoMessage() {}
+func (*CustomResourceDefinitionFeatureGates) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f5a35c9667703937, []int{17}
 }
-func (m *CustomeResourceDefinitionFeatureGates) XXX_Unmarshal(b []byte) error {
+func (m *CustomResourceDefinitionFeatureGates) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *CustomeResourceDefinitionFeatureGates) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *CustomResourceDefinitionFeatureGates) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	b = b[:cap(b)]
 	n, err := m.MarshalToSizedBuffer(b)
 	if err != nil {
@@ -540,17 +540,17 @@ func (m *CustomeResourceDefinitionFeatureGates) XXX_Marshal(b []byte, determinis
 	}
 	return b[:n], nil
 }
-func (m *CustomeResourceDefinitionFeatureGates) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CustomeResourceDefinitionFeatureGates.Merge(m, src)
+func (m *CustomResourceDefinitionFeatureGates) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CustomResourceDefinitionFeatureGates.Merge(m, src)
 }
-func (m *CustomeResourceDefinitionFeatureGates) XXX_Size() int {
+func (m *CustomResourceDefinitionFeatureGates) XXX_Size() int {
 	return m.Size()
 }
-func (m *CustomeResourceDefinitionFeatureGates) XXX_DiscardUnknown() {
-	xxx_messageInfo_CustomeResourceDefinitionFeatureGates.DiscardUnknown(m)
+func (m *CustomResourceDefinitionFeatureGates) XXX_DiscardUnknown() {
+	xxx_messageInfo_CustomResourceDefinitionFeatureGates.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CustomeResourceDefinitionFeatureGates proto.InternalMessageInfo
+var xxx_messageInfo_CustomResourceDefinitionFeatureGates proto.InternalMessageInfo
 
 func (m *ExternalDocumentation) Reset()      { *m = ExternalDocumentation{} }
 func (*ExternalDocumentation) ProtoMessage() {}
@@ -822,7 +822,7 @@ func init() {
 	proto.RegisterType((*CustomResourceSubresourceStatus)(nil), "k8s.io.apiextensions_apiserver.pkg.apis.apiextensions.v1.CustomResourceSubresourceStatus")
 	proto.RegisterType((*CustomResourceSubresources)(nil), "k8s.io.apiextensions_apiserver.pkg.apis.apiextensions.v1.CustomResourceSubresources")
 	proto.RegisterType((*CustomResourceValidation)(nil), "k8s.io.apiextensions_apiserver.pkg.apis.apiextensions.v1.CustomResourceValidation")
-	proto.RegisterType((*CustomeResourceDefinitionFeatureGates)(nil), "k8s.io.apiextensions_apiserver.pkg.apis.apiextensions.v1.CustomeResourceDefinitionFeatureGates")
+	proto.RegisterType((*CustomResourceDefinitionFeatureGates)(nil), "k8s.io.apiextensions_apiserver.pkg.apis.apiextensions.v1.CustomResourceDefinitionFeatureGates")
 	proto.RegisterType((*ExternalDocumentation)(nil), "k8s.io.apiextensions_apiserver.pkg.apis.apiextensions.v1.ExternalDocumentation")
 	proto.RegisterType((*JSON)(nil), "k8s.io.apiextensions_apiserver.pkg.apis.apiextensions.v1.JSON")
 	proto.RegisterType((*JSONSchemaProps)(nil), "k8s.io.apiextensions_apiserver.pkg.apis.apiextensions.v1.JSONSchemaProps")
@@ -1939,7 +1939,7 @@ func (m *CustomResourceValidation) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
-func (m *CustomeResourceDefinitionFeatureGates) Marshal() (dAtA []byte, err error) {
+func (m *CustomResourceDefinitionFeatureGates) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1949,12 +1949,12 @@ func (m *CustomeResourceDefinitionFeatureGates) Marshal() (dAtA []byte, err erro
 	return dAtA[:n], nil
 }
 
-func (m *CustomeResourceDefinitionFeatureGates) MarshalTo(dAtA []byte) (int, error) {
+func (m *CustomResourceDefinitionFeatureGates) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *CustomeResourceDefinitionFeatureGates) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *CustomResourceDefinitionFeatureGates) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -3178,7 +3178,7 @@ func (m *CustomResourceValidation) Size() (n int) {
 	return n
 }
 
-func (m *CustomeResourceDefinitionFeatureGates) Size() (n int) {
+func (m *CustomResourceDefinitionFeatureGates) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -3670,7 +3670,7 @@ func (this *CustomResourceDefinitionSpec) String() string {
 		`Versions:` + repeatedStringForVersions + `,`,
 		`Conversion:` + strings.Replace(this.Conversion.String(), "CustomResourceConversion", "CustomResourceConversion", 1) + `,`,
 		`PreserveUnknownFields:` + fmt.Sprintf("%v", this.PreserveUnknownFields) + `,`,
-		`CustomFeatureGates:` + strings.Replace(this.CustomFeatureGates.String(), "CustomeResourceDefinitionFeatureGates", "CustomeResourceDefinitionFeatureGates", 1) + `,`,
+		`CustomFeatureGates:` + strings.Replace(this.CustomFeatureGates.String(), "CustomResourceDefinitionFeatureGates", "CustomResourceDefinitionFeatureGates", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -3756,7 +3756,7 @@ func (this *CustomResourceValidation) String() string {
 	}, "")
 	return s
 }
-func (this *CustomeResourceDefinitionFeatureGates) String() string {
+func (this *CustomResourceDefinitionFeatureGates) String() string {
 	if this == nil {
 		return "nil"
 	}
@@ -3765,7 +3765,7 @@ func (this *CustomeResourceDefinitionFeatureGates) String() string {
 		repeatedStringForFeatureGates += strings.Replace(strings.Replace(f.String(), "CustomResourceDefinitionFeatureGate", "CustomResourceDefinitionFeatureGate", 1), `&`, ``, 1) + ","
 	}
 	repeatedStringForFeatureGates += "}"
-	s := strings.Join([]string{`&CustomeResourceDefinitionFeatureGates{`,
+	s := strings.Join([]string{`&CustomResourceDefinitionFeatureGates{`,
 		`FeatureGates:` + repeatedStringForFeatureGates + `,`,
 		`Component:` + valueToStringGenerated(this.Component) + `,`,
 		`}`,
@@ -5904,7 +5904,7 @@ func (m *CustomResourceDefinitionSpec) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.CustomFeatureGates == nil {
-				m.CustomFeatureGates = &CustomeResourceDefinitionFeatureGates{}
+				m.CustomFeatureGates = &CustomResourceDefinitionFeatureGates{}
 			}
 			if err := m.CustomFeatureGates.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -6766,7 +6766,7 @@ func (m *CustomResourceValidation) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *CustomeResourceDefinitionFeatureGates) Unmarshal(dAtA []byte) error {
+func (m *CustomResourceDefinitionFeatureGates) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -6789,10 +6789,10 @@ func (m *CustomeResourceDefinitionFeatureGates) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: CustomeResourceDefinitionFeatureGates: wiretype end group for non-group")
+			return fmt.Errorf("proto: CustomResourceDefinitionFeatureGates: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: CustomeResourceDefinitionFeatureGates: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: CustomResourceDefinitionFeatureGates: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

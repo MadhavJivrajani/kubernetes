@@ -258,7 +258,7 @@ message CustomResourceDefinitionSpec {
 
   // customFeatureGates defines feature gates that guard specific fields of the CRD.
   // +optional
-  optional CustomeResourceDefinitionFeatureGates customFeatureGates = 11;
+  optional CustomResourceDefinitionFeatureGates customFeatureGates = 11;
 }
 
 // CustomResourceDefinitionStatus indicates the state of the CustomResourceDefinition
@@ -382,9 +382,9 @@ message CustomResourceValidation {
   optional JSONSchemaProps openAPIV3Schema = 1;
 }
 
-// CustomeResourceDefinitionFeatureGates defines feature gates for specific
+// CustomResourceDefinitionFeatureGates defines feature gates for specific
 // fields to enable field level versioning for custom resource definitions.
-message CustomeResourceDefinitionFeatureGates {
+message CustomResourceDefinitionFeatureGates {
   // featureGates is a list of gates defined for fields of a custom
   // resource definition. No two feature gates may guard the same field.
   repeated CustomResourceDefinitionFeatureGate featureGates = 1;

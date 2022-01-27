@@ -71,12 +71,12 @@ type CustomResourceDefinitionSpec struct {
 	PreserveUnknownFields bool `json:"preserveUnknownFields,omitempty" protobuf:"varint,10,opt,name=preserveUnknownFields"`
 	// customFeatureGates defines feature gates that guard specific fields of the CRD.
 	// +optional
-	CustomFeatureGates *CustomeResourceDefinitionFeatureGates `json:"customFeatureGates,omitempty" protobuf:"bytes,11,opt,name=customFeatureGates"`
+	CustomFeatureGates *CustomResourceDefinitionFeatureGates `json:"customFeatureGates,omitempty" protobuf:"bytes,11,opt,name=customFeatureGates"`
 }
 
-// CustomeResourceDefinitionFeatureGates defines feature gates for specific
+// CustomResourceDefinitionFeatureGates defines feature gates for specific
 // fields to enable field level versioning for custom resource definitions.
-type CustomeResourceDefinitionFeatureGates struct {
+type CustomResourceDefinitionFeatureGates struct {
 	// featureGates is a list of gates defined for fields of a custom
 	// resource definition. No two feature gates may guard the same field.
 	FeatureGates []CustomResourceDefinitionFeatureGate `json:"featureGates" protobuf:"bytes,1,rep,name=featureGates"`
