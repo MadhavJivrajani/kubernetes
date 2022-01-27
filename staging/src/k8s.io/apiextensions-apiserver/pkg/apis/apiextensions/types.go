@@ -81,12 +81,12 @@ type CustomResourceDefinitionSpec struct {
 	PreserveUnknownFields *bool
 	// customFeatureGates defines feature gates that guard specific fields of the CRD.
 	// +optional
-	CustomFeatureGates *CustomeResourceDefinitionFeatureGates
+	CustomFeatureGates *CustomResourceDefinitionFeatureGates
 }
 
-// CustomeResourceDefinitionFeatureGates defines feature gates for specific
+// CustomResourceDefinitionFeatureGates defines feature gates for specific
 // fields to enable field level versioning for custom resource definitions.
-type CustomeResourceDefinitionFeatureGates struct {
+type CustomResourceDefinitionFeatureGates struct {
 	// featureGates is a list of gates defined for fields of a custom
 	// resource definition. No two feature gates may guard the same field.
 	FeatureGates []CustomResourceDefinitionFeatureGate
