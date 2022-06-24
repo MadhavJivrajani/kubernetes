@@ -1031,7 +1031,7 @@ func newTestTransformer() *prefixTransformer {
 }
 
 type setupOptions struct {
-	client        func(*testing.T) *clientv3.Client
+	client        func(testing.TB) *clientv3.Client
 	codec         runtime.Codec
 	newFunc       func() runtime.Object
 	prefix        string
@@ -1045,7 +1045,7 @@ type setupOption func(*setupOptions)
 
 func withClient(client *clientv3.Client) setupOption {
 	return func(options *setupOptions) {
-		options.client = func(t *testing.T) *clientv3.Client {
+		options.client = func(t testing.TB) *clientv3.Client {
 			return client
 		}
 	}
@@ -1053,7 +1053,7 @@ func withClient(client *clientv3.Client) setupOption {
 
 func withClientConfig(config *embed.Config) setupOption {
 	return func(options *setupOptions) {
-		options.client = func(t *testing.T) *clientv3.Client {
+		options.client = func(t testing.TB) *clientv3.Client {
 			return testserver.RunEtcd(t, config)
 		}
 	}
@@ -1090,7 +1090,7 @@ func withLeaseConfig(leaseConfig LeaseManagerConfig) setupOption {
 }
 
 func withDefaults(options *setupOptions) {
-	options.client = func(t *testing.T) *clientv3.Client {
+	options.client = func(t testing.TB) *clientv3.Client {
 		return testserver.RunEtcd(t, nil)
 	}
 	options.codec = apitesting.TestCodec(codecs, examplev1.SchemeGroupVersion)
@@ -1104,7 +1104,7 @@ func withDefaults(options *setupOptions) {
 
 var _ setupOption = withDefaults
 
-func testSetup(t *testing.T, opts ...setupOption) (context.Context, *store, *clientv3.Client) {
+func testSetup(t testing.TB, opts ...setupOption) (context.Context, *store, *clientv3.Client) {
 	setupOpts := setupOptions{}
 	opts = append([]setupOption{withDefaults}, opts...)
 	for _, opt := range opts {
@@ -1381,6 +1381,47 @@ func TestLeaseMaxObjectCount(t *testing.T) {
 		}
 		if store.leaseManager.leaseAttachedObjectCount != tc.expectAttachedCount {
 			t.Errorf("Lease manager recorded count %v should be %v", store.leaseManager.leaseAttachedObjectCount, tc.expectAttachedCount)
+		}
+	}
+}
+
+func BenchmarkGetList(b *testing.B) {
+	b.ReportAllocs()
+	ctx, store, _ := testSetup(b)
+
+	podCount := 1000
+	var pods []*example.Pod
+	for i := 0; i < podCount; i++ {
+		key := fmt.Sprintf("/one-level/pod-%d", i)
+		obj := &example.Pod{ObjectMeta: metav1.ObjectMeta{Name: fmt.Sprintf("pod-%d", i)}}
+		storedObj := &example.Pod{}
+		err := store.Create(ctx, key, obj, storedObj, 0)
+		if err != nil {
+			b.Fatalf("Set failed: %v", err)
+		}
+		pods = append(pods, storedObj)
+	}
+
+	options := storage.ListOptions{
+		Predicate: storage.SelectionPredicate{
+			Limit: 1000,
+			Label: labels.Everything(),
+			Field: fields.Everything(),
+			GetAttrs: func(obj runtime.Object) (labels.Set, fields.Set, error) {
+				pod := obj.(*example.Pod)
+				return nil, fields.Set{"metadata.name": pod.Name}, nil
+			},
+		},
+		Recursive: true,
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		out := &example.PodList{}
+
+		err := store.GetList(ctx, "/", options, out)
+		if err != nil {
+			b.Errorf("GetList failed %v", err)
 		}
 	}
 }
