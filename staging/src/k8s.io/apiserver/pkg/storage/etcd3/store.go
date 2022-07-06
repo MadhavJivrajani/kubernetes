@@ -674,11 +674,11 @@ func (s *store) GetList(ctx context.Context, key string, opts storage.ListOption
 
 		// avoid small allocations for the result slice, since this can be called in many
 		// different contexts and we don't know how significantly the result will be filtered
-		if pred.Empty() {
-			growSlice(v, len(getResp.Kvs))
-		} else {
-			growSlice(v, 2048, len(getResp.Kvs))
-		}
+		// if pred.Empty() {
+		// 	growSlice(v, len(getResp.Kvs))
+		// } else {
+		// 	growSlice(v, 2048, len(getResp.Kvs))
+		// }
 
 		// take items from the response until the bucket is full, filtering as we go
 		for i, kv := range getResp.Kvs {
