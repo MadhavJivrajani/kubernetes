@@ -46,6 +46,7 @@ func newBtreeStore(keyFunc cache.KeyFunc, indexers cache.Indexers, degree int) *
 		tree:     btree.New(degree),
 		indices:  cache.Indices{},
 		indexers: indexers,
+		keyFunc:  keyFunc,
 	}
 }
 
@@ -128,7 +129,7 @@ func (t *btreeStore) Get(obj interface{}) (item interface{}, exists bool, err er
 		return nil, false, nil
 	}
 
-	return item, false, nil
+	return item, true, nil
 }
 
 func (t *btreeStore) GetByKey(key string) (item interface{}, exists bool, err error) {
@@ -273,13 +274,13 @@ func (t *btreeStore) deleteKeyFromIndexLocked(key, value string, index cache.Ind
 
 func (t *btreeStore) LimitPrefixRead(limit int64, key string) []interface{} {
 	t.lock.RLock()
-	defer t.lock.Unlock()
+	defer t.lock.RUnlock()
 
 	var result []interface{}
 	var elementsRetrieved int64
 	t.tree.AscendGreaterOrEqual(&storeElement{Key: key}, func(i btree.Item) bool {
 		elementKey := i.(*storeElement).Key
-		if elementsRetrieved == limit {
+		if limit > 0 && elementsRetrieved == limit {
 			return false
 		}
 		if !strings.HasPrefix(elementKey, key) {
@@ -295,7 +296,7 @@ func (t *btreeStore) LimitPrefixRead(limit int64, key string) []interface{} {
 
 func (t *btreeStore) ByIndex(indexName, indexValue string) ([]interface{}, error) {
 	t.lock.RLock()
-	defer t.lock.Unlock()
+	defer t.lock.RUnlock()
 
 	indexFunc := t.indexers[indexName]
 	if indexFunc == nil {

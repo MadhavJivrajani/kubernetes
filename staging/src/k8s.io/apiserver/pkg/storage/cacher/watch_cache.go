@@ -495,23 +495,13 @@ func (w *watchCache) WaitUntilFreshAndList(resourceVersion uint64, key string, l
 
 	pred := listOpts.Predicate
 	hasContinuation := len(pred.Continue) > 0
-	hasLimit := pred.Limit > 0
+	// hasLimit := pred.Limit > 0
 
 	// Perform a clone under the lock, this should be a relatively
 	// inexpensive operation since the implementation of clone uses
 	// copy on write semantics. Once cloned, serve the list from the
 	// cloned copy to avoid building the response under a lock.
 	var storeClone btreeIndexer
-	if !hasLimit {
-		storeClone = w.store.Clone()
-		for _, matchValue := range matchValues {
-			if result, err := storeClone.ByIndex(matchValue.IndexName, matchValue.Value); err == nil {
-				return result, w.resourceVersion, matchValue.IndexName, nil
-			}
-		}
-		return w.store.List(), w.resourceVersion, "", nil
-	}
-
 	if hasContinuation {
 		if _, ok := w.continueCache.cache[resourceVersion]; !ok {
 			// We return a 410 Gone here for the following reason:
@@ -554,6 +544,12 @@ func (w *watchCache) WaitUntilFreshAndList(resourceVersion uint64, key string, l
 			return nil, 0, "", apierrors.NewBadRequest(fmt.Sprintf("invalid continue token: %v", err))
 		}
 		key = continueKey
+	}
+
+	for _, matchValue := range matchValues {
+		if result, err := w.store.ByIndex(matchValue.IndexName, matchValue.Value); err == nil {
+			return result, w.resourceVersion, matchValue.IndexName, nil
+		}
 	}
 
 	return storeClone.LimitPrefixRead(listOpts.Predicate.Limit, key), w.resourceVersion, "", nil
