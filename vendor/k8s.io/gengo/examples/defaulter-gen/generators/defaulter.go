@@ -446,9 +446,7 @@ func resolveTypeAndDepth(t *types.Type) (*types.Type, int) {
 	depth := 0
 	for prev != t {
 		prev = t
-		if t.Kind == types.Alias {
-			t = t.Underlying
-		} else if t.Kind == types.Pointer {
+		if t.Kind == types.Pointer {
 			t = t.Elem
 			depth += 1
 		}
@@ -465,9 +463,7 @@ func getNestedDefault(t *types.Type) string {
 		if len(defaultMap) == 1 && defaultMap[0] != "" {
 			return defaultMap[0]
 		}
-		if t.Kind == types.Alias {
-			t = t.Underlying
-		} else if t.Kind == types.Pointer {
+		if t.Kind == types.Pointer {
 			t = t.Elem
 		}
 	}
@@ -479,7 +475,7 @@ func mustEnforceDefault(t *types.Type, depth int, omitEmpty bool) (interface{}, 
 		return nil, nil
 	}
 	switch t.Kind {
-	case types.Pointer, types.Map, types.Slice, types.Array, types.Interface:
+	case types.Pointer, types.Map, types.Slice, types.Array, types.Interface, types.Alias:
 		return nil, nil
 	case types.Struct:
 		return map[string]interface{}{}, nil
@@ -508,6 +504,10 @@ func populateDefaultValue(node *callNode, t *types.Type, tags string, commentLin
 	if depth > 0 && defaultString == "" {
 		defaultString = getNestedDefault(t)
 	}
+	if len(defaultString) > 0 {
+		klog.Infof("%s", defaultString)
+	}
+	klog.Infof("%s", defaultString)
 	if len(defaultMap) > 1 {
 		klog.Fatalf("Found more than one default tag for %v", t.Kind)
 	} else if len(defaultMap) == 0 {
@@ -542,6 +542,17 @@ func populateDefaultValue(node *callNode, t *types.Type, tags string, commentLin
 
 	node.defaultIsPrimitive = t.IsPrimitive()
 	node.defaultType = t.String()
+	if t.Kind == types.Alias {
+		parsedName := types.ParseFullyQualifiedName(t.Name.String())
+		tracker := namer.NewDefaultImportTracker(types.Name{})
+		localPackage := generator.GolangTrackerLocalName(&tracker, t.Name)
+		if len(localPackage) > 0 {
+			node.defaultType = localPackage + "." + parsedName.Name
+		} else {
+			node.defaultType = parsedName.Name
+		}
+		node.underlying = t.Underlying
+	}
 	node.defaultValue = defaultString
 	node.defaultDepth = depth
 	return node
@@ -795,26 +806,26 @@ func (g *genDefaulter) generateDefaulter(inType *types.Type, callTree *callNode,
 // how in Go code an access would be performed. For example, if a defaulting function exists on a container
 // lifecycle hook, to invoke that defaulter correctly would require this Go code:
 //
-//     for i := range pod.Spec.Containers {
-//       o := &pod.Spec.Containers[i]
-//       if o.LifecycleHook != nil {
-//         SetDefaults_LifecycleHook(o.LifecycleHook)
-//       }
-//     }
+//	for i := range pod.Spec.Containers {
+//	  o := &pod.Spec.Containers[i]
+//	  if o.LifecycleHook != nil {
+//	    SetDefaults_LifecycleHook(o.LifecycleHook)
+//	  }
+//	}
 //
 // That would be represented by a call tree like:
 //
-//   callNode
-//     field: "Spec"
-//     children:
-//     - field: "Containers"
-//       children:
-//       - index: true
-//         children:
-//         - field: "LifecycleHook"
-//           elem: true
-//           call:
-//           - SetDefaults_LifecycleHook
+//	callNode
+//	  field: "Spec"
+//	  children:
+//	  - field: "Containers"
+//	    children:
+//	    - index: true
+//	      children:
+//	      - field: "LifecycleHook"
+//	        elem: true
+//	        call:
+//	        - SetDefaults_LifecycleHook
 //
 // which we can traverse to build that Go struct (you must call the field Spec, then Containers, then range over
 // that field, then check whether the LifecycleHook field is nil, before calling SetDefaults_LifecycleHook on
@@ -828,6 +839,8 @@ type callNode struct {
 	index bool
 	// elem is true if the previous elements refer to a pointer (typically just field)
 	elem bool
+	// underlying is the underlying type if this is an alias
+	underlying *types.Type
 
 	// call is all of the functions that must be invoked on this particular node, in order
 	call []*types.Type
@@ -972,7 +985,13 @@ func (n *callNode) writeDefaulter(varName string, index string, isVarPointer boo
 			sw.Do(fmt.Sprintf("%s = &ptrVar1", variablePlaceholder), args)
 		} else {
 			// For primitive types, nil checks cannot be used and the zero value must be determined
-			defaultZero, err := getTypeZeroValue(n.defaultType)
+			var zeroTypeValueFor string
+			if n.underlying != nil {
+				zeroTypeValueFor = n.underlying.String()
+			} else {
+				zeroTypeValueFor = n.defaultType
+			}
+			defaultZero, err := getTypeZeroValue(zeroTypeValueFor)
 			if err != nil {
 				klog.Error(err)
 			}

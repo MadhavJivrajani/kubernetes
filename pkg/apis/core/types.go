@@ -4063,6 +4063,7 @@ type ServiceSpec struct {
 	// "Cluster", uses the standard behavior of routing to all endpoints evenly
 	// (possibly modified by topology and other features).
 	// +optional
+	// +default=ref(k8s.io/api/core/v1.ServiceInternalTrafficPolicyCluster)
 	InternalTrafficPolicy *ServiceInternalTrafficPolicy
 }
 
