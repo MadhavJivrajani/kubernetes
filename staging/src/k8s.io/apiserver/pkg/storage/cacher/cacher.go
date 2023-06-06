@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"sort"
 	"strconv"
 	"sync"
 	"time"
@@ -327,6 +328,11 @@ type Cacher struct {
 	bookmarkWatchers *watcherBookmarkTimeBuckets
 	// expiredBookmarkWatchers is a list of watchers that were expired and need to be schedule for a next bookmark event
 	expiredBookmarkWatchers []*cacheWatcher
+
+	// For testing purposes of compaction, we need a way to track what
+	// which RV each wathcher is interested in watching from.
+	// This is a mapping from startRV of watcher -> watcher
+	watchFromRVTracker map[uint64]*cacheWatcher
 }
 
 // NewCacherFromConfig creates a new Cacher responsible for servicing WATCH and LIST requests from
@@ -640,6 +646,8 @@ func (c *Cacher) Watch(ctx context.Context, key string, opts storage.ListOptions
 		watcher.setBookmarkAfterResourceVersion(bookmarkAfterResourceVersionFn())
 		c.watchers.addWatcher(watcher, c.watcherIdx, scope, triggerValue, triggerSupported)
 		addedWatcher = true
+
+		c.watchFromRVTracker[startWatchRV] = watcher
 
 		// Add it to the queue only when the client support watch bookmarks.
 		if watcher.allowWatchBookmarks {
@@ -1395,4 +1403,36 @@ func (c *immediateCloseWatcher) ResultChan() <-chan watch.Event {
 // Implements watch.Interface.
 func (c *immediateCloseWatcher) Stop() {
 	// no-op
+}
+
+type TestPurposeCacherWithCompaction struct {
+	*Cacher
+}
+
+func (t *TestPurposeCacherWithCompaction) Compact(rv uint64) {
+	t.Cacher.watchCache.Lock()
+
+	startIndex := t.Cacher.watchCache.startIndex
+	endIndex := t.Cacher.watchCache.endIndex
+	size := endIndex - startIndex
+	watchCacheCapacity := t.Cacher.watchCache.capacity
+
+	f := func(i int) bool {
+		return t.Cacher.watchCache.cache[(startIndex+i)%watchCacheCapacity].ResourceVersion > rv
+	}
+	first := sort.Search(size, f)
+
+	t.Cacher.watchCache.startIndex += first
+	t.Cacher.watchCache.removedEventSinceRelist = true
+	t.Cacher.watchCache.listResourceVersion = rv
+
+	t.Cacher.watchCache.Unlock()
+
+	t.Cacher.Lock()
+	for startRV, watcher := range t.Cacher.watchFromRVTracker {
+		if startRV < rv {
+			watcher.stopLocked()
+		}
+	}
+	t.Cacher.Unlock()
 }
